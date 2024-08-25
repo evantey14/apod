@@ -1,0 +1,46 @@
+#!/bin/zsh
+
+# Instructions:
+# Add the following line to the crontab
+# 0 * * * * $PATH_TO_SCRIPT/apod
+# based on @niu541412's script
+
+# get apod!
+response=$(curl -X GET "https://api.nasa.gov/planetary/apod?api_key=$APOD_API_KEY")
+echo $response
+
+apod_date=$(echo $response | jq -r ".date")
+explanation=$(echo $response | jq -r ".explanation")
+title=$(echo $response | jq -r ".title")
+media_type=$(echo $response | jq -r ".media_type")
+hdurl=$(echo $response | jq -r ".hdurl")
+url=$(echo $response | jq -r ".url")
+
+epoch=$(date -j -f "%Y-%m-%d" $apod_date +%s)
+
+screen_num=$(osascript -e "tell application \"System Events\" to return count of desktops")
+
+# try to set wallpaper to every screen, if some images are missing, set to the same apod as today.
+if [[ $media_type == "video" ]]; then
+  echo "Today is a video, please visit $url for more information."
+elif [[ $media_type == "image" ]]; then
+  echo "Saving files for ${apod_date}"
+  echo $response > $IMAGE_DIR/apod-${apod_date}.json
+  curl -o $IMAGE_DIR/apod-${apod_date}.jpg ${hdurl}
+  echo "Setting backgrounds for ${screen_num} screen(s)"
+  for ((i = 1; i <= ${screen_num}; i++)); do
+    date=$(date -r $(($epoch - (i - 1) * 86400)) +"%Y-%m-%d")
+    file=$IMAGE_DIR/apod-${date}.jpg
+    if [ ! -f $file ]; then
+      date=$apod_date
+    fi
+    echo "Setting desktop ${i} background to apod-${date}"
+    osascript -e "tell application \"System Events\"" -e "tell desktop ${i}" -e "set picture rotation to 0" -e "set picture to \"${file}\"" -e "end tell" -e "end tell"
+  done
+else
+  echo "Error! Today APOD is something weird."
+fi
+
+
+# clean outdated images
+find $IMAGE_DIR -mtime +7 -exec rm {} \;
