@@ -21,11 +21,13 @@ epoch=$(date -j -f "%Y-%m-%d" $apod_date +%s)
 screen_num=$(osascript -e "tell application \"System Events\" to return count of desktops")
 
 # try to set wallpaper to every screen, if some images are missing, set to the same apod as today.
+
+echo "Saving files for ${apod_date}"
+echo $response > $IMAGE_DIR/apod-${apod_date}.json
+
 if [[ $media_type == "video" ]]; then
   echo "Today is a video, please visit $url for more information."
 elif [[ $media_type == "image" ]]; then
-  echo "Saving files for ${apod_date}"
-  echo $response > $IMAGE_DIR/apod-${apod_date}.json
   curl -o $IMAGE_DIR/apod-${apod_date}.jpg ${hdurl}
   echo "Setting backgrounds for ${screen_num} screen(s)"
   for ((i = 1; i <= ${screen_num}; i++)); do
