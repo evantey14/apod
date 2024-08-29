@@ -29,20 +29,17 @@ if [[ $media_type == "video" ]]; then
   echo "Today is a video, please visit $url for more information."
 elif [[ $media_type == "image" ]]; then
   curl -o $IMAGE_DIR/apod-${apod_date}.jpg ${hdurl}
-  echo "Setting backgrounds for ${screen_num} screen(s)"
-  for ((i = 1; i <= ${screen_num}; i++)); do
-    date=$(date -r $(($epoch - (i - 1) * 86400)) +"%Y-%m-%d")
-    file=$IMAGE_DIR/apod-${date}.jpg
-    if [ ! -f $file ]; then
-      date=$apod_date
-    fi
-    echo "Setting desktop ${i} background to apod-${date}"
-    osascript -e "tell application \"System Events\"" -e "tell desktop ${i}" -e "set picture rotation to 0" -e "set picture to \"${file}\"" -e "end tell" -e "end tell"
-  done
 else
   echo "Error! Today APOD is something weird."
 fi
 
+echo "Setting backgrounds for ${screen_num} screen(s)"
+image_files=($(ls $IMAGE_DIR/*.jpg | sort -r))
+for ((i = 1; i <= ${screen_num}; i++)); do
+  file=${image_files[$i]}
+  echo "Setting desktop ${i} background to ${file}"
+  osascript -e "tell application \"System Events\"" -e "tell desktop ${i}" -e "set picture rotation to 0" -e "set picture to \"${file}\"" -e "end tell" -e "end tell"
+done
 
 # clean outdated images
 find $IMAGE_DIR -mtime +7 -exec rm {} \;
