@@ -9,12 +9,14 @@
 response=$(curl -X GET "https://api.nasa.gov/planetary/apod?api_key=$APOD_API_KEY")
 echo $response
 
-apod_date=$(echo $response | jq -r ".date")
-explanation=$(echo $response | jq -r ".explanation")
-title=$(echo $response | jq -r ".title")
-media_type=$(echo $response | jq -r ".media_type")
-hdurl=$(echo $response | jq -r ".hdurl")
-url=$(echo $response | jq -r ".url")
+clean_response=$(echo "$response" | tr -d '\000-\037' | tr -d '\177')
+
+apod_date=$(echo $clean_response | jq -r ".date")
+explanation=$(echo $clean_response | jq -r ".explanation")
+title=$(echo $clean_response | jq -r ".title")
+media_type=$(echo $clean_response | jq -r ".media_type")
+hdurl=$(echo $clean_response | jq -r ".hdurl")
+url=$(echo $clean_response | jq -r ".url")
 
 epoch=$(date -j -f "%Y-%m-%d" $apod_date +%s)
 
@@ -23,7 +25,7 @@ screen_num=$(osascript -e "tell application \"System Events\" to return count of
 # try to set wallpaper to every screen, if some images are missing, set to the same apod as today.
 
 echo "Saving files for ${apod_date}"
-echo $response > $IMAGE_DIR/apod-${apod_date}.json
+echo $clean_response > $IMAGE_DIR/apod-${apod_date}.json
 
 if [[ $media_type == "video" ]]; then
   echo "Today is a video, please visit $url for more information."
