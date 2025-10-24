@@ -44,4 +44,5 @@ for ((i = 1; i <= ${screen_num}; i++)); do
 done
 
 # clean outdated images
-find $IMAGE_DIR -mtime +7 -exec rm {} \;
+find $IMAGE_DIR -mtime +7 -name "apod-*.json" -exec rm {} \;
+find $IMAGE_DIR -mtime +7 -name "apod-*.jpg" -exec rm {} \;
