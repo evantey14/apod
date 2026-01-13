@@ -40,9 +40,9 @@ image_files=($(ls $IMAGE_DIR/*.jpg | sort))
 for ((i = 1; i <= ${screen_num}; i++)); do
   file=${image_files[$i]}
   echo "Setting desktop ${i} background to ${file}"
-  osascript -e "tell application \"System Events\"" -e "tell desktop ${i}" -e "set picture rotation to 0" -e "set picture to \"${file}\"" -e "end tell" -e "end tell"
+  osascript -e "tell application \"System Events\"" -e "tell desktop ${i}" -e "set picture to \"${file}\"" -e "end tell" -e "end tell"
 done
 
 # clean outdated images
-find $IMAGE_DIR -mtime +7 -name "apod-*.json" -exec rm {} \;
-find $IMAGE_DIR -mtime +7 -name "apod-*.jpg" -exec rm {} \;
+find $IMAGE_DIR -mtime +30 -name "apod-*.json" -exec rm {} \;
+find $IMAGE_DIR -mtime +30 -name "apod-*.jpg" -exec rm {} \;
