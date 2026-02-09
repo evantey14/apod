@@ -36,7 +36,7 @@ else
 fi
 
 echo "Setting backgrounds for ${screen_num} screen(s)"
-image_files=($(ls $IMAGE_DIR/*.jpg | sort))
+image_files=($(ls $IMAGE_DIR/*.jpg | sort -r))
 for ((i = 1; i <= ${screen_num}; i++)); do
   file=${image_files[$i]}
   echo "Setting desktop ${i} background to ${file}"
